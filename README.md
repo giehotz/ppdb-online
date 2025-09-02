@@ -1,68 +1,171 @@
-# CodeIgniter 4 Application Starter
+# PPDB Online - Penerimaan Peserta Didik Baru
 
-## What is CodeIgniter?
+Sistem Penerimaan Peserta Didik Baru (PPDB) Online berbasis web menggunakan CodeIgniter 4. Aplikasi ini dirancang untuk memudahkan proses pendaftaran siswa baru di lembaga pendidikan, khususnya untuk Madrasah Ibtidaiyah (MI).
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## Fitur Utama
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+### 1. Sistem Otentikasi dan Otorisasi
+- **Registrasi Pengguna**: Pendaftaran akun untuk calon siswa
+- **Login Multi-role**: Dukungan untuk tiga peran pengguna:
+  - **Siswa**: Mengisi formulir pendaftaran dan mengunggah dokumen
+  - **Panitia**: Memverifikasi pendaftaran dan mengelola data siswa
+  - **Admin**: Manajemen pengguna, konten, dan pengaturan sistem
+- **Proteksi Akses**: Filter berbasis peran untuk setiap fitur
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+### 2. Formulir Pendaftaran Siswa
+- **Data Pribadi**: Informasi siswa termasuk NISN, NIK, tempat/tanggal lahir
+- **Data Sekolah Asal**: Informasi sekolah sebelumnya
+- **Alamat**: Alamat Kartu Keluarga dan domisili
+- **Data Orang Tua/Wali**: Informasi ayah, ibu, atau wali
+- **Kartu Keluarga**: Data kartu keluarga
+- **Kebutuhan Khusus**: Dukungan untuk siswa berkebutuhan khusus
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+### 3. Manajemen Dokumen
+- **Unggah Dokumen**: Mendukung PDF, JPEG, dan PNG
+- **Verifikasi Dokumen**: Panitia dapat memverifikasi atau menolak dokumen
+- **Tipe Dokumen**:
+  - Akte Kelahiran (wajib)
+  - Kartu Keluarga (wajib)
+  - Pas Foto (wajib)
+  - Rapor (opsional)
+  - KIP (opsional)
+  - Dokumen Lainnya (opsional)
 
-## Installation & updates
+### 4. Manajemen Data Siswa
+- **Pendaftaran Offline**: Panitia dapat menambahkan data siswa secara manual
+- **Edit Data**: Pengelolaan data siswa lengkap (biodata, alamat, orang tua, dokumen)
+- **Status Pendaftaran**: Pelacakan status verifikasi, diterima, cadangan, atau ditolak
+- **Hapus Data**: Soft-delete untuk menjaga integritas data
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+### 5. Content Management System (CMS)
+- **Pengumuman**: Manajemen pengumuman untuk ditampilkan di halaman depan
+- **Informasi Umum**: Informasi proses pendaftaran dan persyaratan
+- **Halaman Statis**: Profil madrasah, kontak, dan informasi lainnya
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+### 6. Ekspor Data
+- **Ekspor PDF**: Cetak formulir pendaftaran dan bukti pendaftaran
+- **Ekspor Excel**: Ekspor data pendaftar untuk keperluan administrasi
 
-## Setup
+### 7. Dashboard dan Statistik
+- **Dashboard Siswa**: Status pendaftaran dan dokumen
+- **Dashboard Panitia**: Statistik pendaftaran dan aksi cepat
+- **Dashboard Admin**: Statistik pengguna dan pengelolaan konten
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+## Struktur Database
 
-## Important Change with index.php
+### Tabel Utama
+- `users`: Manajemen akun pengguna
+- `students`: Data siswa
+- `prior_schools`: Riwayat sekolah sebelumnya
+- `addresses`: Alamat KK dan domisili
+- `parents`: Data orang tua/wali
+- `family_cards`: Informasi kartu keluarga
+- `documents`: Dokumen siswa
+- `submissions`: Status pendaftaran
+- `cms_posts`: Konten CMS (pengumuman, info, halaman)
+- `settings`: Pengaturan sistem
+- `academic_years`: Tahun akademik dan gelombang pendaftaran
+- `madrasah_profile`: Profil madrasah
+- `audit_logs`: Log aktivitas pengguna
+- `sequences`: Penomoran pendaftaran
+- `special_needs`: Daftar kebutuhan khusus
+- `student_special_needs`: Relasi siswa dengan kebutuhan khusus
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+## Teknologi yang Digunakan
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+- **Framework**: CodeIgniter 4
+- **Bahasa Pemrograman**: PHP 7.4+
+- **Frontend**: HTML5, CSS3, JavaScript, Tailwind CSS
+- **Database**: MySQL 5.7+
+- **PDF Generation**: Dompdf
+- **Image Processing**: Intervention Image
+- **Autentikasi**: Native PHP session dengan password_hash
 
-**Please** read the user guide for a better explanation of how CI4 works!
+## Instalasi
 
-## Repository Management
+1. **Kloning Repository**
+   ```bash
+   git clone <repository-url>
+   cd ppdb-online
+   ```
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+2. **Instalasi Dependensi**
+   ```bash
+   composer install
+   ```
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+3. **Konfigurasi Environment**
+   - Salin file `env` ke `.env`
+   - Sesuaikan konfigurasi database dan pengaturan lainnya
 
-## Server Requirements
+4. **Migrasi Database**
+   ```bash
+   php spark migrate
+   php spark db:seed MainSeeder
+   ```
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+5. **Jalankan Aplikasi**
+   ```bash
+   php spark serve
+   ```
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+## Penggunaan
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+### Peran Siswa
+1. Registrasi akun di halaman pendaftaran
+2. Login dan lengkapi formulir pendaftaran
+3. Unggah dokumen yang diperlukan
+4. Submit formulir pendaftaran
+5. Pantau status pendaftaran di dashboard
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+### Peran Panitia
+1. Login dengan akun panitia
+2. Verifikasi dokumen siswa
+3. Update status pendaftaran
+4. Kelola data siswa (offline registration)
+5. Ekspor data untuk keperluan administrasi
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+### Peran Admin
+1. Login dengan akun admin
+2. Kelola pengguna (siswa, panitia)
+3. Kelola konten CMS
+4. Konfigurasi pengaturan sistem
+5. Kelola profil madrasah dan tahun akademik
+
+## Pengaturan Sistem
+
+### Tahun Akademik
+- Manajemen tahun pelajaran dan gelombang pendaftaran
+- Pengaturan kuota per kelas
+- Penjadwalan periode pendaftaran
+
+### Profil Madrasah
+- Informasi resmi madrasah
+- Data kontak dan alamat
+- Informasi kepala madrasah
+- Logo dan kop surat untuk keperluan cetak
+
+### Pengaturan Pendaftaran
+- Toggle pembukaan/tutup pendaftaran
+- Konfigurasi persyaratan dokumen
+- Pengaturan ukuran maksimum file
+
+## Keamanan
+
+- Password di-hash menggunakan `password_hash()`
+- Validasi dan sanitasi input
+- Proteksi CSRF
+- Filter berbasis peran
+- Soft-delete untuk menjaga integritas data
+
+## Lisensi
+
+Aplikasi ini dikembangkan untuk keperluan pendidikan dan dapat digunakan secara bebas sesuai dengan kebutuhan institusi pendidikan.
+
+## Pengembangan Lanjutan
+
+Aplikasi ini dirancang dengan arsitektur modular yang memungkinkan pengembangan fitur tambahan sesuai kebutuhan, termasuk:
+- Integrasi dengan sistem eksternal
+- Notifikasi email/SMS
+- Dashboard analitik yang lebih lengkap
+- Mobile application
