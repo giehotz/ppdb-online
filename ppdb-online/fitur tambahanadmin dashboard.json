@@ -1,0 +1,144 @@
+{
+  "task": "Enhance PPDB Online project with new features",
+  "context": {
+    "base_file": "rancangan ppdb online penyempurnaan.json",
+    "framework": "CodeIgniter 4",
+    "note": "Jika fitur atau tabel sudah ada di file, AI harus melengkapi field/fungsi yang kurang, bukan membuat duplikasi."
+  },
+  "new_features": [
+    {
+      "name": "madrasah_profile",
+      "description": "Menyimpan detail resmi madrasah untuk digunakan pada cetakan PDF, kartu registrasi, surat pengumuman, dan informasi publik di website.",
+      "database_table": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          { "name": "name", "type": "varchar", "length": 255 },
+          { "name": "npsn", "type": "varchar", "length": 20, "unique": true },
+          { "name": "nsm", "type": "varchar", "length": 20, "nullable": true },
+          { "name": "nss", "type": "varchar", "length": 20, "nullable": true },
+          { "name": "address", "type": "varchar", "length": 255 },
+          { "name": "district", "type": "varchar", "length": 100 },
+          { "name": "regency", "type": "varchar", "length": 100 },
+          { "name": "province", "type": "varchar", "length": 100 },
+          { "name": "postal_code", "type": "varchar", "length": 10 },
+          {
+            "name": "phone",
+            "type": "varchar",
+            "length": 20,
+            "nullable": true
+          },
+          {
+            "name": "email",
+            "type": "varchar",
+            "length": 150,
+            "nullable": true
+          },
+          {
+            "name": "website",
+            "type": "varchar",
+            "length": 150,
+            "nullable": true
+          },
+          { "name": "headmaster_name", "type": "varchar", "length": 150 },
+          {
+            "name": "headmaster_nip",
+            "type": "varchar",
+            "length": 30,
+            "nullable": true
+          },
+          {
+            "name": "logo_path",
+            "type": "varchar",
+            "length": 255,
+            "nullable": true
+          },
+          {
+            "name": "letterhead_path",
+            "type": "varchar",
+            "length": 255,
+            "nullable": true
+          },
+          { "name": "created_at", "type": "datetime" },
+          { "name": "updated_at", "type": "datetime" }
+        ]
+      },
+      "mvc_mapping": {
+        "controllers": ["MadrasahProfileController"],
+        "models": ["MadrasahProfileModel"],
+        "views_dir": "app/Views/admin/madrasah_profile"
+      },
+      "api_endpoints": [
+        { "method": "GET", "path": "/admin/madrasah-profile", "auth": "admin" },
+        {
+          "method": "POST",
+          "path": "/admin/madrasah-profile",
+          "auth": "admin"
+        },
+        {
+          "method": "PUT",
+          "path": "/admin/madrasah-profile/{id}",
+          "auth": "admin"
+        }
+      ]
+    },
+    {
+      "name": "academic_years",
+      "description": "Manajemen tahun pelajaran dan gelombang pendaftaran PPDB, termasuk pengaturan kuota per kelas dan periode aktif.",
+      "database_table": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "year_label",
+            "type": "varchar",
+            "length": 9,
+            "unique": true
+          },
+          { "name": "wave", "type": "int", "default": 1 },
+          { "name": "start_date", "type": "date" },
+          { "name": "end_date", "type": "date" },
+          { "name": "announcement_date", "type": "date", "nullable": true },
+          { "name": "quota_total", "type": "int", "nullable": true },
+          { "name": "quota_per_class", "type": "json", "nullable": true },
+          {
+            "name": "status",
+            "type": "enum",
+            "values": ["active", "archived"],
+            "default": "active"
+          },
+          { "name": "created_at", "type": "datetime" },
+          { "name": "updated_at", "type": "datetime" }
+        ]
+      },
+      "mvc_mapping": {
+        "controllers": ["AcademicYearController"],
+        "models": ["AcademicYearModel"],
+        "views_dir": "app/Views/admin/academic_years"
+      },
+      "api_endpoints": [
+        { "method": "GET", "path": "/admin/academic-years", "auth": "admin" },
+        { "method": "POST", "path": "/admin/academic-years", "auth": "admin" },
+        {
+          "method": "PUT",
+          "path": "/admin/academic-years/{id}",
+          "auth": "admin"
+        }
+      ]
+    }
+  ],
+  "instructions": [
+    "Tambahkan tabel baru di database jika belum ada.",
+    "Jika sudah ada pengaturan tahun pelajaran sederhana (registration.current_period), integrasikan ke tabel academic_years.",
+    "Perbarui export/report agar bisa difilter berdasarkan academic_year.",
+    "Gunakan relasi academic_year_id di tabel submissions agar data per tahun jelas."
+  ]
+}

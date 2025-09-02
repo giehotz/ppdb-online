@@ -1,0 +1,1421 @@
+{
+  "version": "2.0",
+  "updatedAt": "2025-08-26",
+  "project": "PPDB Online - Rancangan Skema & Arsitektur (JSON)",
+  "notes": "Semua kunci menggunakan snake_case. Tanggal/waktu dalam ISO 8601. Integer id auto-increment kecuali disebutkan lain.",
+  "roles": {
+    "list": ["admin", "panitia", "user"],
+    "hierarchy": ["admin > panitia > user"],
+    "features_by_role": {
+      "user": [
+        "auth.register",
+        "auth.login",
+        "student.form.save_draft",
+        "student.form.submit",
+        "student.documents.upload",
+        "student.download.registration_pdf",
+        "student.status.view"
+      ],
+      "panitia": [
+        "auth.login",
+        "committee.student.create_offline",
+        "committee.student.edit",
+        "committee.documents.upload_replace",
+        "committee.student.verify_status",
+        "committee.export.pdf_single",
+        "committee.export.excel_csv_all",
+        "committee.search_filter",
+        "committee.bulk_actions",
+        "committee.logs.view_own"
+      ],
+      "admin": [
+        "auth.login",
+        "admin.student.crud_full",
+        "admin.accounts.panitia.manage",
+        "admin.accounts.user.manage",
+        "admin.cms.manage_content",
+        "admin.cms.toggle_registration_open_close",
+        "admin.export.global",
+        "admin.logs.audit_full",
+        "admin.backup_restore"
+      ]
+    },
+    "notes": "Admin mewarisi semua fitur panitia & user. Panitia hanya sebagian fitur user. Semua delete default soft-delete, admin bisa hard-delete.",
+    "implementation": "Via CodeIgniter filters or ACL library like Shield. Scope fitur: 'committee.student.edit' mencakup edit data siswa, alamat, orangtua, dan dokumen; 'admin.export' mendukung global export termasuk logs, sementara 'committee.export' terbatas pada data siswa."
+  },
+  "settings": {
+    "registration": {
+      "is_open": true,
+      "current_period": "2025/2026",
+      "number_pattern": "PPDB-{YEAR}-{SEQ:06}",
+      "sequence_reset": "per_year",
+      "sequence_mechanism": "Gunakan table terpisah 'sequences' dengan columns: period VARCHAR(9) UNIQUE, counter INT DEFAULT 0; Increment via model method seperti $this->db->query('UPDATE sequences SET counter = counter + 1 WHERE period = ?', [$period]); atau fallback ke MAX(registration_no) +1 jika table kosong.",
+      "max_upload_size_mb": 2,
+      "allowed_mime_types": ["application/pdf", "image/jpeg", "image/png"],
+      "document_requirements": [
+        {
+          "doc_type": "birth_certificate",
+          "required": true
+        },
+        {
+          "doc_type": "family_card",
+          "required": true
+        },
+        {
+          "doc_type": "photo",
+          "required": true
+        },
+        {
+          "doc_type": "rapor",
+          "required": false
+        },
+        {
+          "doc_type": "kip",
+          "required": false
+        },
+        {
+          "doc_type": "other",
+          "required": false,
+          "notes": "Dokumen tambahan opsional, bisa multiple dengan deskripsi custom via field 'description' di documents table."
+        }
+      ]
+    },
+    "seo": {
+      "site_title": "PPDB MIN 2 Tanggamus",
+      "meta_description": "Penerimaan Peserta Didik Baru Tahun 2025/2026",
+      "favicon_path": "/public/assets/favicon.ico"
+    }
+  },
+  "database": {
+    "conventions": {
+      "id": "integer auto-increment primary key",
+      "timestamps": ["created_at", "updated_at"],
+      "soft_delete": {
+        "column": "deleted_at",
+        "type": "datetime",
+        "nullable": true
+      },
+      "engine": "InnoDB",
+      "charset": "utf8mb4",
+      "foreign_key_constraints": "ON DELETE RESTRICT, ON UPDATE CASCADE untuk semua FK kecuali disebutkan lain.",
+      "indexes": "Tambahkan UNIQUE pada fields seperti nisn, nik, kk_number; INDEX pada foreign keys dan search fields seperti full_name, birth_date."
+    },
+    "tables": {
+      "users": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "email",
+            "type": "varchar",
+            "length": 255,
+            "unique": true
+          },
+          {
+            "name": "phone",
+            "type": "varchar",
+            "length": 20,
+            "nullable": true
+          },
+          {
+            "name": "password_hash",
+            "type": "varchar",
+            "length": 255
+          },
+          {
+            "name": "role",
+            "type": "enum",
+            "values": ["admin", "panitia", "user"],
+            "index": true
+          },
+          {
+            "name": "status",
+            "type": "enum",
+            "values": ["active", "suspended"],
+            "default": "active"
+          },
+          {
+            "name": "last_login_at",
+            "type": "datetime",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "indexes": [
+          {
+            "type": "index",
+            "columns": ["role"]
+          },
+          {
+            "type": "unique",
+            "columns": ["email"]
+          }
+        ]
+      },
+      "students": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "user_id",
+            "type": "int",
+            "nullable": true,
+            "foreign_key": "users(id)",
+            "comment": "nullable jika dibuat panitia untuk siswa offline"
+          },
+          {
+            "name": "nis_local",
+            "type": "varchar",
+            "length": 20,
+            "nullable": true
+          },
+          {
+            "name": "nisn",
+            "type": "varchar",
+            "length": 10,
+            "nullable": true,
+            "index": true
+          },
+          {
+            "name": "nik",
+            "type": "varchar",
+            "length": 16,
+            "index": true
+          },
+          {
+            "name": "full_name",
+            "type": "varchar",
+            "length": 150
+          },
+          {
+            "name": "birth_place",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "birth_date",
+            "type": "date"
+          },
+          {
+            "name": "gender",
+            "type": "enum",
+            "values": ["L", "P"]
+          },
+          {
+            "name": "class_level",
+            "type": "int",
+            "comment": "1..6"
+          },
+          {
+            "name": "parallel_class",
+            "type": "varchar",
+            "length": 5,
+            "nullable": true
+          },
+          {
+            "name": "attendance_no",
+            "type": "int",
+            "nullable": true
+          },
+          {
+            "name": "class_rank",
+            "type": "int",
+            "nullable": true
+          },
+          {
+            "name": "student_status",
+            "type": "enum",
+            "values": ["baru", "pindahan"],
+            "default": "baru"
+          },
+          {
+            "name": "hobby",
+            "type": "varchar",
+            "length": 100,
+            "nullable": true
+          },
+          {
+            "name": "aspiration",
+            "type": "varchar",
+            "length": 100,
+            "nullable": true
+          },
+          {
+            "name": "siblings_count",
+            "type": "int",
+            "default": 0
+          },
+          {
+            "name": "submission_state",
+            "type": "enum",
+            "values": ["draft", "submitted"],
+            "default": "draft"
+          },
+          {
+            "name": "submitted_at",
+            "type": "datetime",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "indexes": [
+          {
+            "type": "unique",
+            "columns": ["nisn"]
+          },
+          {
+            "type": "unique",
+            "columns": ["nik"]
+          },
+          {
+            "type": "index",
+            "columns": ["full_name"]
+          },
+          {
+            "type": "index",
+            "columns": ["birth_date"]
+          }
+        ]
+      },
+      "prior_schools": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "student_id",
+            "type": "int",
+            "foreign_key": "students(id)",
+            "index": true
+          },
+          {
+            "name": "school_name",
+            "type": "varchar",
+            "length": 150
+          },
+          {
+            "name": "school_level",
+            "type": "enum",
+            "values": ["TK", "RA", "SD", "Lainnya"]
+          },
+          {
+            "name": "school_type",
+            "type": "enum",
+            "values": ["negeri", "swasta"]
+          },
+          {
+            "name": "accreditation_status",
+            "type": "enum",
+            "values": ["terakreditasi", "tidak_terakreditasi", "unknown"],
+            "default": "unknown"
+          },
+          {
+            "name": "city",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "notes": "1 siswa bisa punya banyak riwayat sekolah",
+        "indexes": [
+          {
+            "type": "index",
+            "columns": ["student_id"]
+          }
+        ]
+      },
+      "addresses": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "student_id",
+            "type": "int",
+            "foreign_key": "students(id)",
+            "index": true
+          },
+          {
+            "name": "address_type",
+            "type": "enum",
+            "values": ["kk", "domisili"]
+          },
+          {
+            "name": "address_line",
+            "type": "varchar",
+            "length": 255
+          },
+          {
+            "name": "province",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "regency",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "district",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "village",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "postal_code",
+            "type": "varchar",
+            "length": 10
+          },
+          {
+            "name": "distance_km",
+            "type": "decimal",
+            "precision": 5,
+            "scale": 2
+          },
+          {
+            "name": "transport_mode",
+            "type": "enum",
+            "values": [
+              "jalan_kaki",
+              "sepeda",
+              "motor",
+              "mobil",
+              "angkot",
+              "lainnya"
+            ]
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "notes": "Minimal 1 alamat kk per siswa",
+        "indexes": [
+          {
+            "type": "index",
+            "columns": ["student_id"]
+          }
+        ]
+      },
+      "special_needs": {
+        "seed_info": "pre-seed daftar kebutuhan khusus",
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "code",
+            "type": "varchar",
+            "length": 30,
+            "unique": true
+          },
+          {
+            "name": "label",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "seed_values": [
+          {
+            "code": "tuna_rungu",
+            "label": "Tuna Rungu"
+          },
+          {
+            "code": "tuna_netra",
+            "label": "Tuna Netra"
+          },
+          {
+            "code": "tuna_daksa",
+            "label": "Tuna Daksa"
+          },
+          {
+            "code": "tuna_grahita",
+            "label": "Tuna Grahita"
+          },
+          {
+            "code": "tuna_laras",
+            "label": "Tuna Laras"
+          },
+          {
+            "code": "lamban_belajar",
+            "label": "Lamban Belajar"
+          },
+          {
+            "code": "sulit_belajar",
+            "label": "Sulit Belajar"
+          },
+          {
+            "code": "gangguan_komunikasi",
+            "label": "Gangguan Komunikasi"
+          },
+          {
+            "code": "bakat_luar_biasa",
+            "label": "Bakat Luar Biasa"
+          }
+        ],
+        "notes": "Dikembalikan dari versi asli untuk dukungan kebutuhan khusus"
+      },
+      "student_special_needs": {
+        "columns": [
+          {
+            "name": "student_id",
+            "type": "int",
+            "foreign_key": "students(id)",
+            "primary": true
+          },
+          {
+            "name": "special_need_id",
+            "type": "int",
+            "foreign_key": "special_needs(id)",
+            "primary": true
+          }
+        ],
+        "indexes": [
+          {
+            "type": "primary",
+            "columns": ["student_id", "special_need_id"]
+          }
+        ]
+      },
+      "parents": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "student_id",
+            "type": "int",
+            "foreign_key": "students(id)",
+            "index": true
+          },
+          {
+            "name": "relation",
+            "type": "enum",
+            "values": ["ayah", "ibu", "wali"]
+          },
+          {
+            "name": "full_name",
+            "type": "varchar",
+            "length": 150
+          },
+          {
+            "name": "nik",
+            "type": "varchar",
+            "length": 16,
+            "index": true
+          },
+          {
+            "name": "education",
+            "type": "enum",
+            "values": [
+              "SD",
+              "SMP",
+              "SMA",
+              "D1",
+              "D2",
+              "D3",
+              "S1",
+              "S2",
+              "S3",
+              "Lainnya"
+            ]
+          },
+          {
+            "name": "occupation",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "monthly_income",
+            "type": "decimal",
+            "precision": 12,
+            "scale": 2,
+            "nullable": true,
+            "comment": "Dalam rupiah full nominal"
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "notes": "Minimal 1 ayah + 1 ibu atau wali",
+        "indexes": [
+          {
+            "type": "index",
+            "columns": ["student_id"]
+          },
+          {
+            "type": "unique",
+            "columns": ["nik"]
+          }
+        ]
+      },
+      "family_cards": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "student_id",
+            "type": "int",
+            "foreign_key": "students(id)",
+            "index": true
+          },
+          {
+            "name": "kk_number",
+            "type": "varchar",
+            "length": 20,
+            "unique": true
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "notes": "Link ke addresses dengan address_type 'kk' jika diperlukan",
+        "indexes": [
+          {
+            "type": "index",
+            "columns": ["student_id"]
+          },
+          {
+            "type": "unique",
+            "columns": ["kk_number"]
+          }
+        ]
+      },
+      "documents": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "student_id",
+            "type": "int",
+            "foreign_key": "students(id)",
+            "index": true
+          },
+          {
+            "name": "doc_type",
+            "type": "enum",
+            "values": [
+              "birth_certificate",
+              "family_card",
+              "photo",
+              "rapor",
+              "kip",
+              "other"
+            ]
+          },
+          {
+            "name": "file_name",
+            "type": "varchar",
+            "length": 255
+          },
+          {
+            "name": "file_path",
+            "type": "varchar",
+            "length": 255
+          },
+          {
+            "name": "mime_type",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "size_bytes",
+            "type": "int"
+          },
+          {
+            "name": "status",
+            "type": "enum",
+            "values": ["uploaded", "verified", "rejected"],
+            "default": "uploaded",
+            "index": true
+          },
+          {
+            "name": "notes",
+            "type": "varchar",
+            "length": 255,
+            "nullable": true
+          },
+          {
+            "name": "uploaded_by",
+            "type": "int",
+            "foreign_key": "users(id)"
+          },
+          {
+            "name": "uploaded_at",
+            "type": "datetime"
+          },
+          {
+            "name": "verified_by",
+            "type": "int",
+            "foreign_key": "users(id)",
+            "nullable": true
+          },
+          {
+            "name": "verified_at",
+            "type": "datetime",
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "notes": "Semua required docs harus 'verified' sebelum submissions.status = 'terverifikasi'",
+        "indexes": [
+          {
+            "type": "index",
+            "columns": ["student_id"]
+          },
+          {
+            "type": "index",
+            "columns": ["status"]
+          }
+        ]
+      },
+      "submissions": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "student_id",
+            "type": "int",
+            "foreign_key": "students(id)",
+            "unique": true
+          },
+          {
+            "name": "registration_no",
+            "type": "varchar",
+            "length": 30,
+            "unique": true
+          },
+          {
+            "name": "status",
+            "type": "enum",
+            "values": [
+              "menunggu_verifikasi",
+              "terverifikasi",
+              "diterima",
+              "cadangan",
+              "ditolak"
+            ],
+            "default": "menunggu_verifikasi",
+            "index": true
+          },
+          {
+            "name": "rejection_reason",
+            "type": "varchar",
+            "length": 255,
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "verified_by",
+            "type": "int",
+            "foreign_key": "users(id)",
+            "nullable": true
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "indexes": [
+          {
+            "type": "unique",
+            "columns": ["registration_no"]
+          },
+          {
+            "type": "index",
+            "columns": ["status"]
+          },
+          {
+            "type": "index",
+            "columns": ["student_id"]
+          }
+        ]
+      },
+      "cms_posts": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "type",
+            "type": "enum",
+            "values": ["announcement", "info", "page"],
+            "index": true
+          },
+          {
+            "name": "title",
+            "type": "varchar",
+            "length": 255
+          },
+          {
+            "name": "slug",
+            "type": "varchar",
+            "length": 255,
+            "unique": true
+          },
+          {
+            "name": "content",
+            "type": "text"
+          },
+          {
+            "name": "attachment_path",
+            "type": "varchar",
+            "length": 255,
+            "nullable": true
+          },
+          {
+            "name": "status",
+            "type": "enum",
+            "values": ["draft", "published"],
+            "default": "draft",
+            "index": true
+          },
+          {
+            "name": "publish_at",
+            "type": "datetime",
+            "nullable": true
+          },
+          {
+            "name": "author_id",
+            "type": "int",
+            "foreign_key": "users(id)"
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "indexes": [
+          {
+            "type": "unique",
+            "columns": ["slug"]
+          },
+          {
+            "type": "index",
+            "columns": ["type"]
+          },
+          {
+            "type": "index",
+            "columns": ["status"]
+          }
+        ]
+      },
+      "settings": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "key",
+            "type": "varchar",
+            "length": 100,
+            "unique": true
+          },
+          {
+            "name": "value",
+            "type": "text"
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          },
+          {
+            "name": "updated_at",
+            "type": "datetime"
+          },
+          {
+            "name": "deleted_at",
+            "type": "datetime",
+            "nullable": true
+          }
+        ],
+        "seed_values": [
+          {
+            "key": "registration_is_open",
+            "value": "true"
+          },
+          {
+            "key": "current_period",
+            "value": "2025/2026"
+          }
+        ]
+      },
+      "audit_logs": {
+        "columns": [
+          {
+            "name": "id",
+            "type": "int",
+            "primary": true,
+            "auto_increment": true
+          },
+          {
+            "name": "actor_user_id",
+            "type": "int",
+            "foreign_key": "users(id)",
+            "index": true
+          },
+          {
+            "name": "action",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "entity_type",
+            "type": "varchar",
+            "length": 100
+          },
+          {
+            "name": "entity_id",
+            "type": "int"
+          },
+          {
+            "name": "before_json",
+            "type": "json",
+            "nullable": true,
+            "comment": "Full row snapshot atau hanya changed fields"
+          },
+          {
+            "name": "after_json",
+            "type": "json",
+            "nullable": true,
+            "comment": "Full row snapshot atau hanya changed fields"
+          },
+          {
+            "name": "ip_address",
+            "type": "varchar",
+            "length": 45,
+            "nullable": true
+          },
+          {
+            "name": "created_at",
+            "type": "datetime"
+          }
+        ],
+        "notes": "Logs immutable, tanpa deleted_at",
+        "indexes": [
+          {
+            "type": "index",
+            "columns": ["actor_user_id"]
+          },
+          {
+            "type": "index",
+            "columns": ["entity_type", "entity_id"]
+          }
+        ]
+      },
+      "sequences": {
+        "columns": [
+          {
+            "name": "period",
+            "type": "varchar",
+            "length": 9,
+            "unique": true
+          },
+          {
+            "name": "counter",
+            "type": "int",
+            "default": 0
+          }
+        ],
+        "notes": "Untuk mengelola sequence registration_no per tahun"
+      }
+    },
+    "relations_summary": [
+      "users 1--n students",
+      "students 1--1 submissions",
+      "students 1--n documents",
+      "students 1--n parents",
+      "students 1--n addresses",
+      "students 1--n prior_schools",
+      "students n--m special_needs (via student_special_needs)",
+      "users 1--n audit_logs (actor_user_id)",
+      "users 1--n cms_posts (author_id)"
+    ]
+  },
+  "validations": {
+    "student": {
+      "nisn": {
+        "regex": "^[0-9]{10}$",
+        "message": "NISN harus 10 digit"
+      },
+      "nik": {
+        "regex": "^[0-9]{16}$",
+        "message": "NIK harus 16 digit"
+      },
+      "birth_date": {
+        "format": "YYYY-MM-DD",
+        "must_be_past": "Relative ke current date, minimal umur 5 tahun (gunakan Carbon::now()->subYears(5))"
+      },
+      "siblings_count": {
+        "min": 0
+      },
+      "pindahan_wajib_prior_school": true,
+      "nik_unique_per_period": true
+    },
+    "parent": {
+      "nik": {
+        "regex": "^[0-9]{16}$",
+        "message": "NIK orangtua harus 16 digit"
+      },
+      "must_have_father_mother_or_wali": true
+    },
+    "documents": {
+      "max_size_mb": 2,
+      "allowed_types": ["application/pdf", "image/jpeg", "image/png"],
+      "required_upload_before_submit": true,
+      "photo_square": "Gunakan library Intervention Image untuk check aspect ratio 1:1"
+    },
+    "additional": {
+      "distance_km": "> 0",
+      "monthly_income": "> 0 jika diisi",
+      "class_level": "BETWEEN 1 AND 6"
+    }
+  },
+  "mvc_mapping": {
+    "framework": "CodeIgniter 4",
+    "user": {
+      "controllers": [
+        "RegisterController",
+        "AuthController",
+        "DashboardController",
+        "FormController",
+        "DocumentController",
+        "SubmissionController",
+        "StatusController"
+      ],
+      "models": [
+        "UserModel",
+        "StudentModel",
+        "DocumentModel",
+        "SubmissionModel"
+      ],
+      "views_dir": "app/Views/user"
+    },
+    "panitia": {
+      "controllers": [
+        "DashboardController",
+        "StudentController",
+        "VerificationController",
+        "ExportController"
+      ],
+      "models": ["StudentModel", "DocumentModel", "SubmissionModel"],
+      "views_dir": "app/Views/panitia"
+    },
+    "admin": {
+      "controllers": [
+        "DashboardController",
+        "StudentController",
+        "PanitiaController",
+        "UserController",
+        "CMSController",
+        "ExportController",
+        "LogController"
+      ],
+      "models": [
+        "UserModel",
+        "StudentModel",
+        "DocumentModel",
+        "SubmissionModel",
+        "CMSModel",
+        "LogModel"
+      ],
+      "views_dir": "app/Views/admin"
+    },
+    "dependencies": [
+      "app/Models/UserModel.php (model user)",
+      "app/Controllers/AuthController.php (register, login, logout)",
+      "app/Filters/AuthFilter.php (proteksi route)",
+      "session (built-in CodeIgniter 4)",
+      "password_hash & password_verify (built-in PHP)",
+      "dompdf/dompdf untuk PDF generation",
+      "firebase/php-jwt untuk JWT handling",
+      "intervention/image untuk image validation/manipulation"
+    ],
+    "example_methods": {
+      "FormController": {
+        "saveDraft": "Handle POST partial data, set submission_state = 'draft'",
+        "submit": "Validate business rules, set submission_state = 'submitted', generate registration_no"
+      }
+    }
+  },
+  "api_endpoints_example": {
+    "jwt_config": {
+      "library": "firebase/php-jwt",
+      "secret": "Dari .env (JWT_SECRET)",
+      "expiry": "1h",
+      "validation": "Via middleware atau filter di CodeIgniter"
+    },
+    "public": [
+      {
+        "method": "GET",
+        "path": "/",
+        "desc": "dashboard publik"
+      },
+      {
+        "method": "GET",
+        "path": "/announcements",
+        "desc": "daftar pengumuman"
+      },
+      {
+        "method": "GET",
+        "path": "/announcements/{slug}",
+        "desc": "detail pengumuman"
+      }
+    ],
+    "auth": [
+      {
+        "method": "POST",
+        "path": "/auth/register",
+        "desc": "daftar akun user",
+        "body": {
+          "email": "string required",
+          "password": "string min:8",
+          "phone": "string optional"
+        },
+        "response": {
+          "success": true,
+          "message": "User registered"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/auth/login",
+        "desc": "login",
+        "body": {
+          "email": "string",
+          "password": "string"
+        },
+        "response": {
+          "token": "jwt string",
+          "role": "string"
+        }
+      }
+    ],
+    "user": [
+      {
+        "method": "GET",
+        "path": "/user/dashboard",
+        "auth": "user"
+      },
+      {
+        "method": "POST",
+        "path": "/user/student",
+        "auth": "user",
+        "body": {
+          "nisn": "string regex:/^[0-9]{10}$/",
+          "nik": "string regex:/^[0-9]{16}$/",
+          "full_name": "string",
+          "birth_place": "string",
+          "birth_date": "date format:YYYY-MM-DD",
+          "gender": "enum:L,P",
+          "class_level": "int 1-6",
+          "student_status": "enum:baru,pindahan"
+        },
+        "response": {
+          "success": true,
+          "student_id": "int"
+        }
+      },
+      {
+        "method": "PUT",
+        "path": "/user/student/{id}",
+        "auth": "user"
+      },
+      {
+        "method": "POST",
+        "path": "/user/documents",
+        "auth": "user",
+        "body": {
+          "doc_type": "enum",
+          "file": "multipart file",
+          "description": "string optional for other"
+        },
+        "response": {
+          "success": true,
+          "document_id": "int"
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/user/submit",
+        "auth": "user",
+        "body": {},
+        "response": {
+          "success": true,
+          "registration_no": "string"
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/user/registration-pdf",
+        "auth": "user",
+        "response": "PDF file stream"
+      }
+    ],
+    "committee": [
+      {
+        "method": "GET",
+        "path": "/committee/students",
+        "auth": "panitia",
+        "query_params": {
+          "search": "string optional",
+          "status": "enum optional",
+          "page": "int"
+        },
+        "response": {
+          "data": [
+            {
+              "id": "int",
+              "full_name": "string",
+              "status": "string"
+            }
+          ],
+          "pagination": {
+            "total": "int"
+          }
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/committee/students",
+        "auth": "panitia"
+      },
+      {
+        "method": "PUT",
+        "path": "/committee/students/{id}",
+        "auth": "panitia"
+      },
+      {
+        "method": "POST",
+        "path": "/committee/students/{id}/verify",
+        "auth": "panitia",
+        "body": {
+          "status": "enum:terverifikasi,ditolak",
+          "rejection_reason": "string optional"
+        },
+        "response": {
+          "success": true
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/committee/export",
+        "auth": "panitia"
+      }
+    ],
+    "admin": [
+      {
+        "method": "GET",
+        "path": "/admin/students",
+        "auth": "admin"
+      },
+      {
+        "method": "DELETE",
+        "path": "/admin/students/{id}",
+        "auth": "admin"
+      },
+      {
+        "method": "POST",
+        "path": "/admin/accounts/panitia",
+        "auth": "admin"
+      },
+      {
+        "method": "POST",
+        "path": "/admin/cms/toggle-registration",
+        "auth": "admin",
+        "body": {
+          "is_open": "boolean"
+        },
+        "response": {
+          "success": true
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/admin/backup",
+        "auth": "admin"
+      },
+      {
+        "method": "GET",
+        "path": "/admin/logs",
+        "auth": "admin",
+        "query_params": {
+          "user_id": "int optional",
+          "entity_type": "string optional"
+        },
+        "response": {
+          "data": [
+            {
+              "id": "int",
+              "action": "string",
+              "created_at": "datetime"
+            }
+          ]
+        }
+      }
+    ],
+    "errors": {
+      "format": {
+        "error": {
+          "code": "int",
+          "message": "string",
+          "details": "array optional"
+        }
+      },
+      "400": "Bad Request - Invalid input",
+      "401": "Unauthorized - Invalid token",
+      "403": "Forbidden - Access denied",
+      "422": "Validation Error - With details array",
+      "500": "Server Error - Log internally"
+    }
+  }
+}
