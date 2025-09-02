@@ -85,7 +85,7 @@ Sistem Penerimaan Peserta Didik Baru (PPDB) Online berbasis web menggunakan Code
 
 1. **Kloning Repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/giehotz/ppdb-online.git
    cd ppdb-online
    ```
 
