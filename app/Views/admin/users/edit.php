@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main'); ?>
 
 <?= $this->section('content'); ?>
-<div class="mb-6">
+<div class="px-4 md:px-8 lg:px-12 py-6">
     <h2 class="text-2xl font-bold text-gray-800">Edit User</h2>
     <nav class="text-sm text-gray-500">
         <a href="/admin/dashboard" class="text-blue-500 hover:underline">Dashboard</a>

@@ -4,14 +4,32 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
+use App\Models\MadrasahProfileModel;
+use App\Models\AcademicYearModel;
+use App\Models\StudentModel;
+use App\Models\SubmissionModel;
+use App\Models\DocumentModel;
+use App\Models\SettingModel;
 
 class AdminController extends BaseController
 {
     protected $userModel;
+    protected $madrasahProfileModel;
+    protected $academicYearModel;
+    protected $studentModel;
+    protected $submissionModel;
+    protected $documentModel;
+    protected $settingModel;
     
     public function __construct()
     {
         $this->userModel = new UserModel();
+        $this->madrasahProfileModel = new MadrasahProfileModel();
+        $this->academicYearModel = new AcademicYearModel();
+        $this->studentModel = new StudentModel();
+        $this->submissionModel = new SubmissionModel();
+        $this->documentModel = new DocumentModel();
+        $this->settingModel = new SettingModel();
     }
     
     public function dashboard()
@@ -22,10 +40,30 @@ class AdminController extends BaseController
         }
         
         // Get user statistics
-        $totalUsers = $this->userModel->countAll();
-        $totalStudents = $this->userModel->where('role', 'siswa')->countAllResults();
-        $totalCommittee = $this->userModel->where('role', 'panitia')->countAllResults();
-        $totalAdmins = $this->userModel->where('role', 'admin')->countAllResults();
+        $userCount = $this->userModel->countAll();
+        $studentCount = $this->userModel->where('role', 'siswa')->countAllResults();
+        $committeeCount = $this->userModel->where('role', 'panitia')->countAllResults();
+        $adminCount = $this->userModel->where('role', 'admin')->countAllResults();
+        
+        // Get student statistics
+        $submissionCount = $this->submissionModel->countAll();
+        $acceptedCount = $this->submissionModel->where('status', 'diterima')->countAllResults();
+        $verifiedCount = $this->submissionModel->where('status', 'terverifikasi')->countAllResults();
+        $waitingVerificationCount = $this->submissionModel->where('status', 'menunggu_verifikasi')->countAllResults();
+        $rejectedCount = $this->submissionModel->where('status', 'ditolak')->countAllResults();
+        $reservedCount = $this->submissionModel->where('status', 'cadangan')->countAllResults();
+        
+        // Get document statistics
+        $documentCount = $this->documentModel->countAll();
+        $verifiedDocumentCount = $this->documentModel->where('status', 'verified')->countAllResults();
+        $unverifiedDocumentCount = $this->documentModel->where('status', 'uploaded')->countAllResults();
+        $rejectedDocumentCount = $this->documentModel->where('status', 'rejected')->countAllResults();
+        
+        // Get madrasah profile
+        $madrasahProfile = $this->madrasahProfileModel->first();
+        
+        // Get active academic year
+        $activeAcademicYear = $this->academicYearModel->getActive();
         
         $data = [
             'title' => 'Admin Dashboard',
@@ -34,12 +72,54 @@ class AdminController extends BaseController
                 'email' => session()->get('email'),
                 'role' => session()->get('role'),
             ],
-            'totalUsers' => $totalUsers,
-            'totalStudents' => $totalStudents,
-            'totalCommittee' => $totalCommittee,
-            'totalAdmins' => $totalAdmins
+            'userCount' => $userCount,
+            'studentCount' => $studentCount,
+            'committeeCount' => $committeeCount,
+            'adminCount' => $adminCount,
+            'submissionCount' => $submissionCount,
+            'acceptedCount' => $acceptedCount,
+            'verifiedCount' => $verifiedCount,
+            'waitingVerificationCount' => $waitingVerificationCount,
+            'rejectedCount' => $rejectedCount,
+            'reservedCount' => $reservedCount,
+            'documentCount' => $documentCount,
+            'verifiedDocumentCount' => $verifiedDocumentCount,
+            'unverifiedDocumentCount' => $unverifiedDocumentCount,
+            'rejectedDocumentCount' => $rejectedDocumentCount,
+            'madrasahProfile' => $madrasahProfile,
+            'activeAcademicYear' => $activeAcademicYear,
+            'recentActivities' => [] // Placeholder for future implementation
         ];
 
         return view('admin/dashboard', $data);
+    }
+
+    /**
+     * Toggle registration status
+     */
+    public function toggleRegistration()
+    {
+        // Check if user is logged in and has admin role
+        if (!session()->has('logged_in') || session()->get('role') !== 'admin') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Unauthorized']);
+        }
+
+        // Get current registration status
+        $currentStatus = $this->settingModel->get('registration_open', null);
+        
+        // Toggle status
+        $newStatus = $currentStatus === '1' ? '0' : '1';
+        
+        // Save new status
+        $this->settingModel->setValue('registration_open', $newStatus);
+        
+        // Determine status text
+        $statusText = $newStatus === '1' ? 'dibuka' : 'ditutup';
+        
+        return $this->response->setJSON([
+            'status' => 'success', 
+            'message' => 'Pendaftaran berhasil ' . $statusText,
+            'is_open' => $newStatus === '1'
+        ]);
     }
 }

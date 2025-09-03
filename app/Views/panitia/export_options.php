@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-<div class="mb-6">
+<div class="px-4 md:px-8 lg:px-12 py-6">
     <div class="flex justify-between items-center">
         <div>
             <h2 class="text-2xl font-bold text-gray-800">Ekspor Data</h2>
@@ -31,7 +31,7 @@
                     <strong>Cara penggunaan:</strong> Akses melalui halaman detail pendaftar, klik tombol "Ekspor PDF" untuk mengunduh formulir.
                 </p>
             </div>
-            
+
             <div class="border border-gray-200 rounded-lg p-4">
                 <h4 class="font-medium text-gray-800 mb-2">Bukti Pendaftaran</h4>
                 <p class="text-gray-600 text-sm mb-3">
@@ -54,10 +54,10 @@
         <p class="text-gray-600 mb-4">
             Ekspor data kolektif siswa ke dalam format Excel atau CSV untuk keperluan analisis dan pelaporan.
         </p>
-        
+
         <form action="/panitia/export/submissions" method="POST">
             <?= csrf_field() ?>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Filter Berdasarkan Status</label>
@@ -70,7 +70,7 @@
                         <option value="ditolak">Ditolak</option>
                     </select>
                 </div>
-                
+
                 <div>
                     <label for="format" class="block text-sm font-medium text-gray-700 mb-1">Format File</label>
                     <select name="format" id="format" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -78,29 +78,29 @@
                         <option value="csv">CSV (.csv)</option>
                     </select>
                 </div>
-                
+
                 <div>
                     <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
                     <input type="date" name="start_date" id="start_date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                
+
                 <div>
                     <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
                     <input type="date" name="end_date" id="end_date" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
-            
+
             <div class="flex flex-wrap gap-4">
                 <button type="submit" name="export_type" value="basic" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                     <i class="fas fa-file-excel mr-1"></i> Ekspor Laporan Dasar
                 </button>
-                
+
                 <button type="submit" name="export_type" value="detailed" formaction="/panitia/export/detailed-report" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                     <i class="fas fa-file-excel mr-1"></i> Ekspor Laporan Detail
                 </button>
             </div>
         </form>
-        
+
         <div class="mt-6 pt-6 border-t border-gray-200">
             <h4 class="font-medium text-gray-800 mb-2">Perbedaan Jenis Laporan</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -113,7 +113,7 @@
                         <li>Tanggal pendaftaran</li>
                     </ul>
                 </div>
-                
+
                 <div class="bg-gray-50 p-4 rounded">
                     <h5 class="font-medium text-gray-700 mb-2">Laporan Detail</h5>
                     <ul class="text-sm text-gray-600 list-disc pl-5 space-y-1">

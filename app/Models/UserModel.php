@@ -15,6 +15,8 @@ class UserModel extends Model
         'email',
         'password_hash',
         'role',
+        'name',
+        'profile_photo',
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
@@ -26,6 +28,8 @@ class UserModel extends Model
         'email' => 'required|valid_email|is_unique[users.email,id,{id}]',
         'password_hash' => 'required|max_length[255]',
         'role' => 'required|in_list[admin,siswa,panitia,kepala_sekolah]',
+        'name' => 'permit_empty|string|max_length[100]',
+        'profile_photo' => 'permit_empty|string|max_length[255]',
     ];
     
     protected $validationMessages = [

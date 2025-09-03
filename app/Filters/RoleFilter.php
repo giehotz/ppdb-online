@@ -22,8 +22,17 @@ class RoleFilter implements FilterInterface
             
             // Jika role pengguna tidak dalam daftar role yang diizinkan
             if (!in_array($userRole, $allowedRoles)) {
-                // Tampilkan halaman error atau redirect ke dashboard sesuai role
-                return redirect()->to('/' . $userRole . '/dashboard');
+                // Redirect ke dashboard sesuai role pengguna
+                switch ($userRole) {
+                    case 'admin':
+                        return redirect()->to('/admin/dashboard');
+                    case 'panitia':
+                        return redirect()->to('/panitia/dashboard');
+                    case 'siswa':
+                        return redirect()->to('/student/dashboard');
+                    default:
+                        return redirect()->to('/user/dashboard');
+                }
             }
         }
     }

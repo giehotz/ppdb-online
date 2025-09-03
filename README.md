@@ -169,3 +169,259 @@ Aplikasi ini dirancang dengan arsitektur modular yang memungkinkan pengembangan 
 - Notifikasi email/SMS
 - Dashboard analitik yang lebih lengkap
 - Mobile application
+```
+ppdb-online
+├─ app
+│  ├─ .htaccess
+│  ├─ Common.php
+│  ├─ Config
+│  │  ├─ App.php
+│  │  ├─ Autoload.php
+│  │  ├─ Boot
+│  │  │  ├─ development.php
+│  │  │  ├─ production.php
+│  │  │  └─ testing.php
+│  │  ├─ Cache.php
+│  │  ├─ Constants.php
+│  │  ├─ ContentSecurityPolicy.php
+│  │  ├─ Cookie.php
+│  │  ├─ Cors.php
+│  │  ├─ CURLRequest.php
+│  │  ├─ Database.php
+│  │  ├─ DocTypes.php
+│  │  ├─ Email.php
+│  │  ├─ Encryption.php
+│  │  ├─ Events.php
+│  │  ├─ Exceptions.php
+│  │  ├─ Feature.php
+│  │  ├─ Filters.php
+│  │  ├─ ForeignCharacters.php
+│  │  ├─ Format.php
+│  │  ├─ Generators.php
+│  │  ├─ Honeypot.php
+│  │  ├─ Images.php
+│  │  ├─ Kint.php
+│  │  ├─ Logger.php
+│  │  ├─ Migrations.php
+│  │  ├─ Mimes.php
+│  │  ├─ Modules.php
+│  │  ├─ Optimize.php
+│  │  ├─ Pager.php
+│  │  ├─ Paths.php
+│  │  ├─ Publisher.php
+│  │  ├─ Routes.php
+│  │  ├─ Routing.php
+│  │  ├─ Security.php
+│  │  ├─ Services.php
+│  │  ├─ Session.php
+│  │  ├─ Toolbar.php
+│  │  ├─ UserAgents.php
+│  │  ├─ Validation.php
+│  │  └─ View.php
+│  ├─ Controllers
+│  │  ├─ Admin
+│  │  │  ├─ AcademicYearController.php
+│  │  │  ├─ CMSController.php
+│  │  │  ├─ DocumentController.php
+│  │  │  ├─ MadrasahProfileController.php
+│  │  │  ├─ ReportController.php
+│  │  │  ├─ SettingsController.php
+│  │  │  ├─ SubmissionController.php
+│  │  │  └─ UserManagementController.php
+│  │  ├─ AdminController.php
+│  │  ├─ AuthController.php
+│  │  ├─ BaseController.php
+│  │  ├─ DocumentController.php
+│  │  ├─ Home.php
+│  │  ├─ NotificationController.php
+│  │  ├─ PagesController.php
+│  │  ├─ Panitia
+│  │  │  ├─ DashboardController.php
+│  │  │  ├─ ExcelExportController.php
+│  │  │  ├─ PdfExportController.php
+│  │  │  ├─ StudentManagementController.php
+│  │  │  ├─ UserManagementController.php
+│  │  │  └─ VerificationController.php
+│  │  ├─ PanitiaController.php
+│  │  ├─ PanitiaRegistrationController.php
+│  │  ├─ ProfileController.php
+│  │  ├─ StudentController.php
+│  │  ├─ TestController.php
+│  │  └─ UserController.php
+│  ├─ Database
+│  │  ├─ Migrations
+│  │  │  ├─ 2025-08-31-000001_CreateUsersTable.php
+│  │  │  ├─ 2025-08-31-000002_CreateStudentsTable.php
+│  │  │  ├─ 2025-08-31-000003_CreatePriorSchoolsTable.php
+│  │  │  ├─ 2025-08-31-000004_CreateAddressesTable.php
+│  │  │  ├─ 2025-08-31-000005_CreateSpecialNeedsTable.php
+│  │  │  ├─ 2025-08-31-000006_CreateStudentSpecialNeedsTable.php
+│  │  │  ├─ 2025-08-31-000007_CreateParentsTable.php
+│  │  │  ├─ 2025-08-31-000008_CreateFamilyCardsTable.php
+│  │  │  ├─ 2025-08-31-000009_CreateDocumentsTable.php
+│  │  │  ├─ 2025-08-31-000010_CreateSubmissionsTable.php
+│  │  │  ├─ 2025-08-31-000011_CreateCmsPostsTable.php
+│  │  │  ├─ 2025-08-31-000013_CreateAuditLogsTable.php
+│  │  │  ├─ 2025-08-31-000014_CreateSequencesTable.php
+│  │  │  ├─ 2025-08-31-000015_CreateNotificationsTable.php
+│  │  │  ├─ 2025-09-02-100000_CreateMadrasahProfileTable.php
+│  │  │  ├─ 2025-09-02-100001_CreateAcademicYearsTable.php
+│  │  │  ├─ 2025-09-02-100002_CreateSettingsTable.php
+│  │  │  └─ 2025-09-03-100000_AddProfileFieldsToUsersTable.php
+│  │  └─ Seeds
+│  │     ├─ AcademicYearSeeder.php
+│  │     ├─ CmsPostSeeder.php
+│  │     ├─ CMSSeeder.php
+│  │     ├─ DatabaseSeeder.php
+│  │     ├─ MadrasahProfileSeeder.php
+│  │     ├─ MainSeeder.php
+│  │     ├─ SettingSeeder.php
+│  │     ├─ SpecialNeedSeeder.php
+│  │     ├─ TestDataSeeder.php
+│  │     ├─ TestSubmissionSeeder.php
+│  │     └─ UserSeeder.php
+│  ├─ Filters
+│  │  └─ RoleFilter.php
+│  ├─ Helpers
+│  │  └─ setting_helper.php
+│  ├─ index.html
+│  ├─ Language
+│  │  └─ en
+│  │     └─ Validation.php
+│  ├─ Libraries
+│  ├─ Models
+│  │  ├─ AcademicYearModel.php
+│  │  ├─ AddressModel.php
+│  │  ├─ CMSModel.php
+│  │  ├─ DocumentModel.php
+│  │  ├─ FamilyCardModel.php
+│  │  ├─ MadrasahProfileModel.php
+│  │  ├─ NotificationModel.php
+│  │  ├─ ParentModel.php
+│  │  ├─ PriorSchoolModel.php
+│  │  ├─ SequenceModel.php
+│  │  ├─ SettingModel.php
+│  │  ├─ StudentModel.php
+│  │  ├─ SubmissionModel.php
+│  │  └─ UserModel.php
+│  ├─ ThirdParty
+│  └─ Views
+│     ├─ admin
+│     │  ├─ academic_years
+│     │  │  ├─ form.php
+│     │  │  └─ index.php
+│     │  ├─ cms
+│     │  │  ├─ form.php
+│     │  │  └─ index.php
+│     │  ├─ dashboard.php
+│     │  ├─ documents
+│     │  │  └─ index.php
+│     │  ├─ madrasah_profile
+│     │  │  └─ form.php
+│     │  ├─ reports
+│     │  │  └─ index.php
+│     │  ├─ settings
+│     │  │  └─ form.php
+│     │  ├─ submissions
+│     │  │  └─ index.php
+│     │  └─ users
+│     │     ├─ create.php
+│     │     ├─ edit.php
+│     │     └─ index.php
+│     ├─ auth
+│     │  ├─ login.php
+│     │  └─ register.php
+│     ├─ errors
+│     │  ├─ cli
+│     │  │  ├─ error_404.php
+│     │  │  ├─ error_exception.php
+│     │  │  └─ production.php
+│     │  └─ html
+│     │     ├─ debug.css
+│     │     ├─ debug.js
+│     │     ├─ error_400.php
+│     │     ├─ error_404.php
+│     │     ├─ error_exception.php
+│     │     └─ production.php
+│     ├─ home.php
+│     ├─ layouts
+│     │  ├─ main.php
+│     │  └─ public.php
+│     ├─ pages
+│     │  ├─ announcement.php
+│     │  ├─ announcements.php
+│     │  ├─ home.php
+│     │  ├─ madrasah_profile.php
+│     │  └─ page.php
+│     ├─ panitia
+│     │  ├─ dashboard.php
+│     │  ├─ documents.php
+│     │  ├─ document_detail.php
+│     │  ├─ export_options.php
+│     │  ├─ pdf
+│     │  │  ├─ registration_form.php
+│     │  │  └─ registration_receipt.php
+│     │  ├─ registrations.php
+│     │  ├─ registration_detail.php
+│     │  ├─ students
+│     │  │  ├─ form.php
+│     │  │  └─ index.php
+│     │  ├─ user_create.php
+│     │  ├─ user_edit.php
+│     │  ├─ user_management.php
+│     │  └─ verification.php
+│     ├─ partials
+│     │  ├─ footer.php
+│     │  ├─ header.php
+│     │  └─ nav.php
+│     ├─ profile
+│     │  └─ edit.php
+│     ├─ student
+│     │  ├─ dashboard.php
+│     │  ├─ documents.php
+│     │  └─ registration_form.php
+│     ├─ user
+│     │  └─ dashboard.php
+│     └─ welcome_message.php
+├─ brief.md
+├─ builds
+├─ CHANGELOG.md
+├─ composer.json
+├─ CONTRIBUTING.md
+├─ create_notifications_table.php
+├─ fitur tambahanadmin dashboard.json
+├─ LICENSE
+├─ preload.php
+├─ public
+│  ├─ .htaccess
+│  ├─ favicon.ico
+│  ├─ index.php
+│  ├─ profile_photos
+│  └─ robots.txt
+├─ rancangan ppdb online penyempurnaan.json
+├─ README.md
+├─ rencanatambahan.txt
+├─ spark
+├─ tests
+│  ├─ .htaccess
+│  ├─ database
+│  │  └─ ExampleDatabaseTest.php
+│  ├─ index.html
+│  ├─ README.md
+│  ├─ session
+│  │  └─ ExampleSessionTest.php
+│  ├─ unit
+│  │  └─ HealthTest.php
+│  └─ _support
+│     ├─ Database
+│     ├─ Libraries
+│     │  └─ ConfigReader.php
+│     └─ Models
+│        └─ ExampleModel.php
+├─ test_notification.php
+├─ test_notification_model.php
+└─ writable
+   ├─ .htaccess
+   └─ index.html
+
+```

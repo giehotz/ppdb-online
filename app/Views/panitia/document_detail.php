@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-<div class="mb-6">
+<div class="px-4 md:px-8 lg:px-12 py-6">
     <h2 class="text-2xl font-bold text-gray-800">Detail Dokumen</h2>
     <nav class="text-sm text-gray-500">
         <span>Dashboard</span> > <span>Verifikasi Dokumen</span> > <span>Detail</span>
@@ -66,7 +66,7 @@
                 <?php endif; ?>
             </table>
         </div>
-        
+
         <div>
             <h4 class="text-md font-medium text-gray-900 mb-3">Data Siswa</h4>
             <table class="min-w-full">
@@ -84,18 +84,18 @@
 
     <div class="border-t border-gray-200 pt-6">
         <h4 class="text-md font-medium text-gray-900 mb-3">Aksi Verifikasi</h4>
-        
+
         <?php if ($document['status'] === 'uploaded'): ?>
             <div class="flex space-x-4">
-                <button type="button" 
-                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                        onclick="verifyDocument(<?= $document['id'] ?>, 'verified')">
+                <button type="button"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    onclick="verifyDocument(<?= $document['id'] ?>, 'verified')">
                     <i class="fas fa-check mr-1"></i> Setujui Dokumen
                 </button>
-                
-                <button type="button" 
-                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                        onclick="showRejectModal(<?= $document['id'] ?>)">
+
+                <button type="button"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    onclick="showRejectModal(<?= $document['id'] ?>)">
                     <i class="fas fa-times mr-1"></i> Tolak Dokumen
                 </button>
             </div>
@@ -114,18 +114,18 @@
 
 <div class="bg-white rounded-lg shadow p-6">
     <h4 class="text-md font-medium text-gray-900 mb-3">Pratinjau Dokumen</h4>
-    
+
     <?php if (in_array($document['mime_type'], ['image/jpeg', 'image/png', 'image/jpg'])): ?>
         <div class="text-center">
-            <img src="/panitia/documents/<?= $document['id'] ?>/preview" alt="Pratinjau Dokumen" 
-                 class="max-w-full h-auto max-h-96 mx-auto border border-gray-200 rounded">
+            <img src="/panitia/documents/<?= $document['id'] ?>/preview" alt="Pratinjau Dokumen"
+                class="max-w-full h-auto max-h-96 mx-auto border border-gray-200 rounded">
         </div>
     <?php else: ?>
         <div class="text-center py-8">
             <i class="fas fa-file-pdf text-gray-300 text-4xl mb-3"></i>
             <p class="text-gray-500 mb-4">Pratinjau tidak tersedia untuk dokumen ini</p>
-            <a href="/documents/download/<?= $document['id'] ?>" 
-               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <a href="/documents/download/<?= $document['id'] ?>"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 <i class="fas fa-download mr-2"></i> Unduh Dokumen
             </a>
         </div>
@@ -149,15 +149,15 @@
                         Alasan Penolakan *
                     </label>
                     <textarea id="rejectNotes" name="notes" rows="3" required
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
                 <div class="flex justify-end space-x-3">
                     <button type="button" onclick="closeRejectModal()"
-                            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Batal
                     </button>
                     <button type="submit"
-                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                         Tolak Dokumen
                     </button>
                 </div>
@@ -167,66 +167,66 @@
 </div>
 
 <script>
-function verifyDocument(documentId, status) {
-    if (!confirm('Apakah Anda yakin ingin ' + (status === 'verified' ? 'menyetujui' : 'menolak') + ' dokumen ini?')) {
-        return;
+    function verifyDocument(documentId, status) {
+        if (!confirm('Apakah Anda yakin ingin ' + (status === 'verified' ? 'menyetujui' : 'menolak') + ' dokumen ini?')) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('document_id', documentId);
+        formData.append('status', status);
+
+        fetch('/panitia/verify-document', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat memverifikasi dokumen');
+            });
     }
 
-    const formData = new FormData();
-    formData.append('document_id', documentId);
-    formData.append('status', status);
+    function showRejectModal() {
+        document.getElementById('rejectModal').classList.remove('hidden');
+    }
 
-    fetch('/panitia/verify-document', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message);
-            location.reload();
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan saat memverifikasi dokumen');
+    function closeRejectModal() {
+        document.getElementById('rejectModal').classList.add('hidden');
+    }
+
+    document.getElementById('rejectForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        formData.append('status', 'rejected');
+
+        fetch('/panitia/verify-document', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    closeRejectModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menolak dokumen');
+            });
     });
-}
-
-function showRejectModal() {
-    document.getElementById('rejectModal').classList.remove('hidden');
-}
-
-function closeRejectModal() {
-    document.getElementById('rejectModal').classList.add('hidden');
-}
-
-document.getElementById('rejectForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    formData.append('status', 'rejected');
-    
-    fetch('/panitia/verify-document', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message);
-            closeRejectModal();
-            location.reload();
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan saat menolak dokumen');
-    });
-});
 </script>
 <?= $this->endSection() ?>

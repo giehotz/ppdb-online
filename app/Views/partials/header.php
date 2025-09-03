@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?? 'PPDB MIN 2 Tanggamus' ?></title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* Custom scrollbar for webkit browsers */
@@ -26,43 +24,42 @@
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: #555;
+            background: #0ebd46ff;
         }
     </style>
 </head>
 
 <body class="bg-gray-100">
 
-    <!-- Navbar -->
     <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <!-- Logo & Nav Links -->
                 <div class="flex items-center space-x-8">
-                    <!-- Logo -->
-                    <a href="/" class="flex-shrink-0 font-bold text-xl text-gray-800">
+                    <a href="#" class="flex-shrink-0 font-bold text-xl text-gray-800">
                         Admin Panel
                     </a>
-                    <!-- Desktop Nav Links (Diperbarui) -->
                     <div class="hidden md:flex items-center space-x-2">
-                        <a href="/admin/dashboard" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100">
+                        <?php
+                        $currentPath = service('uri')->getPath();
+                        $dashboardActive = ($currentPath === 'admin/dashboard') ? 'text-white bg-indigo-600' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100';
+                        $usersActive = ($currentPath === 'admin/users') ? 'text-white bg-indigo-600' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100';
+                        $settingsActive = (strpos($currentPath, 'admin/settings') === 0) ? 'text-white bg-indigo-600' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100';
+                        ?>
+                        <a href="/admin/dashboard" class="flex items-center px-3 py-2 rounded-md text-sm font-medium <?= $dashboardActive ?>">
                             <i class="fas fa-home mr-2"></i> Dashboard
                         </a>
-                        <a href="/admin/users" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-white bg-indigo-600">
+                        <a href="/admin/users" class="flex items-center px-3 py-2 rounded-md text-sm font-medium <?= $usersActive ?>">
                             <i class="fas fa-users-cog mr-2"></i> Manajemen User
                         </a>
-                        <a href="/admin/settings" class="flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100">
+                        <a href="/admin/settings" class="flex items-center px-3 py-2 rounded-md text-sm font-medium <?= $settingsActive ?>">
                             <i class="fas fa-cog mr-2"></i> Pengaturan
                         </a>
                     </div>
                 </div>
 
-                <!-- Right Side Items Wrapper -->
                 <div class="flex items-center">
-                    <!-- Right side: Notifications & User Menu -->
                     <div class="flex items-center space-x-2 sm:space-x-4">
                         <?php if (session()->has('user_id')): ?>
-                            <!-- Notification Bell -->
                             <div class="relative" id="notificationBell">
                                 <button class="p-1 rounded-full text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                     <i class="fas fa-bell text-xl"></i>
@@ -79,17 +76,25 @@
                                 </div>
                             </div>
 
-                            <!-- User Menu -->
                             <div class="relative" id="userMenu">
                                 <button class="flex items-center space-x-2 focus:outline-none">
-                                    <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-sm">
-                                        <?= strtoupper(substr(session()->get('username'), 0, 1)) ?>
-                                    </div>
-                                    <span class="hidden sm:inline text-sm text-gray-700 font-medium"><?= session()->get('username') ?></span>
+                                    <?php if (!empty(session()->get('profile_photo'))): ?>
+                                        <img src="/uploads/profile_photos/<?= session()->get('profile_photo') ?>" 
+                                             alt="Profile Photo" 
+                                             class="w-8 h-8 rounded-full object-cover">
+                                    <?php else: ?>
+                                        <div class="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+                                            <?= strtoupper(substr(session()->get('name') ?? session()->get('username'), 0, 1)) ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    <span class="hidden sm:inline text-sm text-gray-700 font-medium"><?= session()->get('name') ?? session()->get('username') ?></span>
                                     <i class="hidden sm:inline fas fa-chevron-down text-xs text-gray-500"></i>
                                 </button>
 
                                 <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden z-50 ring-1 ring-black ring-opacity-5">
+                                    <a href="/profile/edit" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-user mr-3 text-gray-500"></i>Update Profile
+                                    </a>
                                     <a href="/logout" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         <i class="fas fa-sign-out-alt mr-3 text-gray-500"></i>Logout
                                     </a>
@@ -103,7 +108,6 @@
                         <?php endif; ?>
                     </div>
 
-                    <!-- Mobile Menu Button -->
                     <div class="md:hidden flex items-center ml-2 sm:ml-4">
                         <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
                             <i class="fas fa-bars text-xl"></i>
@@ -113,25 +117,28 @@
             </div>
         </div>
 
-        <!-- Mobile Menu (Diperbarui) -->
         <div id="mobile-menu" class="md:hidden hidden">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="/admin/dashboard" class="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                <?php
+                $currentPath = service('uri')->getPath();
+                $dashboardActive = ($currentPath === 'admin/dashboard') ? 'text-white bg-indigo-600' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50';
+                $usersActive = ($currentPath === 'admin/users') ? 'text-white bg-indigo-600' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50';
+                $settingsActive = (strpos($currentPath, 'admin/settings') === 0) ? 'text-white bg-indigo-600' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50';
+                ?>
+                <a href="/admin/dashboard" class="flex items-center px-3 py-2 rounded-md text-base font-medium <?= $dashboardActive ?>">
                     <i class="fas fa-home mr-2"></i> Dashboard
                 </a>
-                <a href="/admin/users" class="flex items-center px-3 py-2 rounded-md text-base font-medium text-white bg-indigo-600">
+                <a href="/admin/users" class="flex items-center px-3 py-2 rounded-md text-base font-medium <?= $usersActive ?>">
                     <i class="fas fa-users-cog mr-2"></i> Manajemen User
                 </a>
-                <a href="/admin/settings" class="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                <a href="/admin/settings" class="flex items-center px-3 py-2 rounded-md text-base font-medium <?= $settingsActive ?>">
                     <i class="fas fa-cog mr-2"></i> Pengaturan
                 </a>
             </div>
         </div>
     </nav>
 
-    <!-- Page Content -->
     <main>
-        <!-- Di sini konten dari view lain akan dirender -->
         <?= $this->renderSection('content') ?>
     </main>
 

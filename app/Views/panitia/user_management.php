@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-<div class="mb-6">
+<div class="px-4 md:px-8 lg:px-12 py-6">
     <div class="flex justify-between items-center">
         <div>
             <h2 class="text-2xl font-bold text-gray-800">Manajemen Pengguna</h2>
@@ -61,15 +61,15 @@
             <tbody class="bg-white divide-y divide-gray-200">
                 <?php if (!empty($users)): ?>
                     <?php foreach ($users as $user): ?>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-medium text-gray-900"><?= esc($user['username']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900"><?= esc($user['email']) ?></div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900"><?= esc($user['username']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900"><?= esc($user['email']) ?></div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                 <?php if ($user['role'] === 'admin'): ?>
                                     bg-red-100 text-red-800
                                 <?php elseif ($user['role'] === 'panitia'): ?>
@@ -79,21 +79,21 @@
                                 <?php else: ?>
                                     bg-yellow-100 text-yellow-800
                                 <?php endif; ?>">
-                                <?= ucfirst(str_replace('_', ' ', $user['role'])) ?>
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <?= date('d M Y H:i', strtotime($user['created_at'])) ?>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="/panitia/users/edit/<?= $user['id'] ?>" class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a href="#" onclick="confirmDelete(<?= $user['id'] ?>)" class="text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash"></i> Hapus
-                            </a>
-                        </td>
-                    </tr>
+                                    <?= ucfirst(str_replace('_', ' ', $user['role'])) ?>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <?= date('d M Y H:i', strtotime($user['created_at'])) ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="/panitia/users/edit/<?= $user['id'] ?>" class="text-blue-600 hover:text-blue-900 mr-3">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <a href="#" onclick="confirmDelete(<?= $user['id'] ?>)" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </a>
+                            </td>
+                        </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
@@ -105,20 +105,20 @@
             </tbody>
         </table>
     </div>
-    
+
     <!-- Pagination -->
     <?php if (!empty($users)): ?>
-    <div class="px-6 py-4 border-t">
-        <?= $pager->links('users', 'tailwind') ?>
-    </div>
+        <div class="px-6 py-4 border-t">
+            <?= $pager->links('users', 'tailwind') ?>
+        </div>
     <?php endif; ?>
 </div>
 
 <script>
-function confirmDelete(userId) {
-    if (confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
-        window.location.href = '/panitia/users/delete/' + userId;
+    function confirmDelete(userId) {
+        if (confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
+            window.location.href = '/panitia/users/delete/' + userId;
+        }
     }
-}
 </script>
 <?= $this->endSection() ?>

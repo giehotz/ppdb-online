@@ -108,6 +108,6 @@ class Filters extends BaseConfig
      * @var array<string, array<string, list<string>>>
      */
     public array $filters = [
-        'role' => ['before' => ['panitia/*', 'admin/*', 'user/*']]
+        'role' => ['before' => ['panitia/*', 'admin/*', 'student/*', 'user/*']]
     ];
 }

@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-<div class="mb-6">
+<div class="px-4 md:px-8 lg:px-12 py-6">
     <h2 class="text-2xl font-bold text-gray-800">Manajemen Pendaftaran</h2>
     <nav class="text-sm text-gray-500">
         <span>Dashboard</span> > <span>Manajemen Pendaftaran</span>
@@ -12,8 +12,8 @@
     <div class="flex justify-between items-center mb-6">
         <h3 class="text-lg font-medium text-gray-900">Daftar Pendaftaran</h3>
         <div class="relative">
-            <input type="text" placeholder="Cari pendaftaran..." 
-                   class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <input type="text" placeholder="Cari pendaftaran..."
+                class="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <div class="absolute left-3 top-2.5 text-gray-400">
                 <i class="fas fa-search"></i>
             </div>
@@ -71,13 +71,13 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <a href="/panitia/registrations/<?= $submission['id'] ?>" 
-                                   class="text-blue-500 hover:text-blue-700 mr-3">
+                                <a href="/panitia/registrations/<?= $submission['id'] ?>"
+                                    class="text-blue-500 hover:text-blue-700 mr-3">
                                     <i class="fas fa-eye"></i> Lihat
                                 </a>
-                                <button type="button" 
-                                        class="text-green-500 hover:text-green-700"
-                                        onclick="showUpdateStatusModal(<?= $submission['id'] ?>, '<?= $submission['status'] ?>')">
+                                <button type="button"
+                                    class="text-green-500 hover:text-green-700"
+                                    onclick="showUpdateStatusModal(<?= $submission['id'] ?>, '<?= $submission['status'] ?>')">
                                     <i class="fas fa-edit"></i> Ubah Status
                                 </button>
                             </td>
@@ -106,7 +106,7 @@
                         Status Baru *
                     </label>
                     <select id="status" name="status" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Pilih Status</option>
                         <option value="menunggu_verifikasi">Menunggu Verifikasi</option>
                         <option value="terverifikasi">Terverifikasi</option>
@@ -120,15 +120,15 @@
                         Alasan Penolakan *
                     </label>
                     <textarea id="rejectionReason" name="rejection_reason" rows="3"
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
                 </div>
                 <div class="flex justify-end space-x-3">
                     <button type="button" onclick="closeUpdateStatusModal()"
-                            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Batal
                     </button>
                     <button type="submit"
-                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Simpan Perubahan
                     </button>
                 </div>
@@ -138,58 +138,58 @@
 </div>
 
 <script>
-function showUpdateStatusModal(submissionId, currentStatus) {
-    document.getElementById('submissionId').value = submissionId;
-    document.getElementById('status').value = currentStatus;
-    
-    // Show/hide rejection reason field based on selected status
-    toggleRejectionReasonField(currentStatus);
-    
-    document.getElementById('updateStatusModal').classList.remove('hidden');
-}
+    function showUpdateStatusModal(submissionId, currentStatus) {
+        document.getElementById('submissionId').value = submissionId;
+        document.getElementById('status').value = currentStatus;
 
-function closeUpdateStatusModal() {
-    document.getElementById('updateStatusModal').classList.add('hidden');
-}
+        // Show/hide rejection reason field based on selected status
+        toggleRejectionReasonField(currentStatus);
 
-function toggleRejectionReasonField(status) {
-    const rejectionReasonField = document.getElementById('rejectionReasonField');
-    if (status === 'ditolak') {
-        rejectionReasonField.classList.remove('hidden');
-        document.getElementById('rejectionReason').setAttribute('required', 'required');
-    } else {
-        rejectionReasonField.classList.add('hidden');
-        document.getElementById('rejectionReason').removeAttribute('required');
+        document.getElementById('updateStatusModal').classList.remove('hidden');
     }
-}
 
-document.getElementById('status').addEventListener('change', function() {
-    toggleRejectionReasonField(this.value);
-});
+    function closeUpdateStatusModal() {
+        document.getElementById('updateStatusModal').classList.add('hidden');
+    }
 
-document.getElementById('updateStatusForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    fetch('/panitia/update-registration-status', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message);
-            closeUpdateStatusModal();
-            location.reload();
+    function toggleRejectionReasonField(status) {
+        const rejectionReasonField = document.getElementById('rejectionReasonField');
+        if (status === 'ditolak') {
+            rejectionReasonField.classList.remove('hidden');
+            document.getElementById('rejectionReason').setAttribute('required', 'required');
         } else {
-            alert('Error: ' + data.message);
+            rejectionReasonField.classList.add('hidden');
+            document.getElementById('rejectionReason').removeAttribute('required');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Terjadi kesalahan saat memperbarui status');
+    }
+
+    document.getElementById('status').addEventListener('change', function() {
+        toggleRejectionReasonField(this.value);
     });
-});
+
+    document.getElementById('updateStatusForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('/panitia/update-registration-status', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.message);
+                    closeUpdateStatusModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat memperbarui status');
+            });
+    });
 </script>
 <?= $this->endSection() ?>

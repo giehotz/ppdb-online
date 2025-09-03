@@ -41,10 +41,26 @@ class DocumentController extends BaseController
             'other' => 'Dokumen Lainnya'
         ];
 
+        // Required documents
+        $requiredDocuments = [
+            'birth_certificate' => 'Akte Kelahiran',
+            'family_card' => 'Kartu Keluarga',
+            'photo' => 'Pas Foto',
+            'rapor' => 'Rapor'
+        ];
+
+        // Create a map of uploaded documents by type
+        $uploadedDocuments = [];
+        foreach ($documents as $document) {
+            $uploadedDocuments[$document['doc_type']] = $document;
+        }
+
         $data = [
             'title' => 'Unggah Dokumen',
             'documents' => $documents,
             'documentTypes' => $documentTypes,
+            'requiredDocuments' => $requiredDocuments,
+            'uploadedDocuments' => $uploadedDocuments,
             'studentId' => $studentId
         ];
 
@@ -152,6 +168,39 @@ class DocumentController extends BaseController
         }
 
         return $this->response->download($filePath, null);
+    }
+    
+    public function delete($documentId)
+    {
+        // Ensure user is logged in and is a student
+        if (!session()->has('user_id') || session()->get('role') !== 'siswa') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Unauthorized']);
+        }
+
+        $document = $this->documentModel->find($documentId);
+        
+        if (!$document) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Dokumen tidak ditemukan']);
+        }
+
+        // Check if user is owner
+        $studentId = $this->getStudentIdByUserId(session()->get('user_id'));
+        if ($document['student_id'] != $studentId) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Unauthorized']);
+        }
+
+        // Delete file from filesystem
+        $filePath = WRITEPATH . $document['file_path'];
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
+        // Delete from database
+        if ($this->documentModel->delete($documentId)) {
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Dokumen berhasil dihapus']);
+        } else {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal menghapus dokumen']);
+        }
     }
 
     private function getStudentIdByUserId($userId)

@@ -12,5 +12,8 @@ class DatabaseSeeder extends Seeder
         $this->call('UserSeeder');
         $this->call('SpecialNeedSeeder');
         $this->call('CmsPostSeeder');
+        $this->call('SettingSeeder');
+        $this->call('MadrasahProfileSeeder');
+        $this->call('AcademicYearSeeder');
     }
 }

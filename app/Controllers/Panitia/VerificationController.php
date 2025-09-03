@@ -75,6 +75,42 @@ class VerificationController extends BaseController
             ->where('student_id', $submission['student_id'])
             ->findAll();
 
+        // Required documents
+        $requiredDocuments = [
+            'birth_certificate' => 'Akte Kelahiran',
+            'family_card' => 'Kartu Keluarga',
+            'photo' => 'Pas Foto',
+            'rapor' => 'Rapor'
+        ];
+
+        // Check documents status
+        $allDocumentsVerified = true;
+        $allRequiredDocumentsUploaded = true;
+        $unverifiedDocuments = [];
+        $missingRequiredDocuments = [];
+        
+        // Create a map of uploaded documents by type
+        $uploadedDocuments = [];
+        foreach ($documents as $document) {
+            $uploadedDocuments[$document['doc_type']] = $document;
+        }
+        
+        // Check if all required documents are uploaded
+        foreach ($requiredDocuments as $docType => $docLabel) {
+            if (!isset($uploadedDocuments[$docType])) {
+                $allRequiredDocumentsUploaded = false;
+                $missingRequiredDocuments[] = $docLabel;
+            }
+        }
+        
+        // Check if all documents are verified
+        foreach ($documents as $document) {
+            if ($document['status'] !== 'verified') {
+                $allDocumentsVerified = false;
+                $unverifiedDocuments[] = $document;
+            }
+        }
+
         $statusLabels = [
             'menunggu_verifikasi' => 'Menunggu Verifikasi',
             'terverifikasi' => 'Terverifikasi',
@@ -99,6 +135,12 @@ class VerificationController extends BaseController
             'priorSchool' => $priorSchool,
             'familyCard' => $familyCard,
             'documents' => $documents,
+            'requiredDocuments' => $requiredDocuments,
+            'uploadedDocuments' => $uploadedDocuments,
+            'allDocumentsVerified' => $allDocumentsVerified,
+            'allRequiredDocumentsUploaded' => $allRequiredDocumentsUploaded,
+            'unverifiedDocuments' => $unverifiedDocuments,
+            'missingRequiredDocuments' => $missingRequiredDocuments,
             'statusLabels' => $statusLabels,
             'statusColors' => $statusColors
         ];
@@ -138,6 +180,55 @@ class VerificationController extends BaseController
             return $this->response->setJSON(['status' => 'error', 'message' => 'Data pendaftaran tidak ditemukan']);
         }
 
+        // If status is 'terverifikasi', check if all documents are verified and all required documents are uploaded
+        if ($status === 'terverifikasi') {
+            $documents = $this->documentModel
+                ->where('student_id', $submission['student_id'])
+                ->findAll();
+            
+            // Required documents
+            $requiredDocuments = [
+                'birth_certificate' => 'Akte Kelahiran',
+                'family_card' => 'Kartu Keluarga',
+                'photo' => 'Pas Foto',
+                'rapor' => 'Rapor'
+            ];
+            
+            // Check documents status
+            $allDocumentsVerified = true;
+            $allRequiredDocumentsUploaded = true;
+            
+            // Create a map of uploaded documents by type
+            $uploadedDocuments = [];
+            foreach ($documents as $document) {
+                $uploadedDocuments[$document['doc_type']] = $document;
+            }
+            
+            // Check if all required documents are uploaded
+            foreach ($requiredDocuments as $docType => $docLabel) {
+                if (!isset($uploadedDocuments[$docType])) {
+                    $allRequiredDocumentsUploaded = false;
+                    break;
+                }
+            }
+            
+            // Check if all documents are verified
+            foreach ($documents as $document) {
+                if ($document['status'] !== 'verified') {
+                    $allDocumentsVerified = false;
+                    break;
+                }
+            }
+            
+            if (!$allRequiredDocumentsUploaded) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Tidak dapat mengubah status menjadi Terverifikasi karena masih ada dokumen wajib yang belum diunggah.']);
+            }
+            
+            if (!$allDocumentsVerified) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Tidak dapat mengubah status menjadi Terverifikasi karena masih ada dokumen yang belum diverifikasi.']);
+            }
+        }
+
         // Update submission
         $data = [
             'id' => $submissionId,
@@ -168,6 +259,64 @@ class VerificationController extends BaseController
             ]);
         } else {
             return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal memperbarui status pendaftaran']);
+        }
+    }
+    
+    /**
+     * Verify or reject a document
+     */
+    public function verifyDocument()
+    {
+        // Ensure user is logged in and is panitia
+        if (!session()->has('user_id') || session()->get('role') !== 'panitia') {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Unauthorized']);
+        }
+
+        $documentId = $this->request->getPost('document_id');
+        $status = $this->request->getPost('status');
+        $rejectionReason = $this->request->getPost('rejection_reason');
+
+        // Validate input
+        if (!$documentId || !in_array($status, ['verified', 'rejected'])) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Data tidak valid']);
+        }
+
+        // If status is 'rejected', rejection reason is required
+        if ($status === 'rejected' && empty($rejectionReason)) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Alasan penolakan harus diisi']);
+        }
+
+        // Get document
+        $document = $this->documentModel->find($documentId);
+        
+        if (!$document) {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Dokumen tidak ditemukan']);
+        }
+
+        // Update document
+        $data = [
+            'id' => $documentId,
+            'status' => $status,
+            'verified_by' => session()->get('user_id'),
+            'verified_at' => date('Y-m-d H:i:s')
+        ];
+
+        // Add rejection reason if provided and status is rejected
+        if ($status === 'rejected' && !empty($rejectionReason)) {
+            $data['notes'] = $rejectionReason;
+        }
+
+        if ($this->documentModel->save($data)) {
+            $message = $status === 'verified' 
+                ? 'Dokumen berhasil diverifikasi' 
+                : 'Dokumen berhasil ditolak';
+            
+            return $this->response->setJSON([
+                'status' => 'success', 
+                'message' => $message
+            ]);
+        } else {
+            return $this->response->setJSON(['status' => 'error', 'message' => 'Gagal memperbarui status dokumen']);
         }
     }
     
