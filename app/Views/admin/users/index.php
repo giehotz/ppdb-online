@@ -101,9 +101,13 @@
                                                 <?= date('d M Y, H:i', strtotime($user['created_at'])) ?>
                                             </td>
                                             <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                                <a href="/admin/users/edit/<?= $user['id'] ?>" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                                <a href="/admin/users/<?= $user['id'] ?>/edit" class="text-indigo-600 hover:text-indigo-900">Edit</a>
                                                 <?php if ($user['id'] != session()->get('user_id')): ?>
-                                                    <a href="/admin/users/delete/<?= $user['id'] ?>" class="ml-4 text-red-600 hover:text-red-900" onclick="return confirm('Apakah Anda yakin ingin menghapus user ini?')">Hapus</a>
+                                                    <form action="/admin/users/<?= $user['id'] ?>/delete" method="post" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus user ini?')">
+                                                        <?= csrf_field() ?>
+                                                        <button type="submit" class="ml-4 text-red-600 hover:text-red-900">Hapus</button>
+                                                    </form>
+                                                    <a href="/admin/users/<?= $user['id'] ?>/reset-password" class="ml-4 text-yellow-600 hover:text-yellow-900" onclick="return confirm('Apakah Anda yakin ingin mereset password user ini?')">Reset Password</a>
                                                 <?php endif; ?>
                                             </td>
                                         </tr>

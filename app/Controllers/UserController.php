@@ -26,17 +26,9 @@ class UserController extends BaseController
         // Get user role
         $role = session()->get('role');
         
-        // If user is student, try to get student data
+        // For non-student users, get their data
         $student = null;
         $submission = null;
-        
-        if ($role === 'siswa') {
-            $student = $this->studentModel->where('user_id', session()->get('user_id'))->first();
-            
-            if ($student) {
-                $submission = $this->submissionModel->where('student_id', $student['id'])->first();
-            }
-        }
 
         $data = [
             'title' => 'Dashboard',
@@ -45,6 +37,6 @@ class UserController extends BaseController
             'submission' => $submission
         ];
 
-        return view('user/dashboard', $data);
+        return view('student/user_dashboard', $data);
     }
 }

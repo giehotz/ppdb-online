@@ -39,7 +39,7 @@
                 </div>
             <?php endif; ?>
 
-            <form action="/auth/attempt-login" method="post" class="space-y-6">
+            <form action="/login" method="post" class="space-y-6">
                 <?= csrf_field() ?>
                 <div>
                     <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>

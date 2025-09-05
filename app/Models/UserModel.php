@@ -17,6 +17,7 @@ class UserModel extends Model
         'role',
         'name',
         'profile_photo',
+        'first_login'
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
@@ -30,6 +31,7 @@ class UserModel extends Model
         'role' => 'required|in_list[admin,siswa,panitia,kepala_sekolah]',
         'name' => 'permit_empty|string|max_length[100]',
         'profile_photo' => 'permit_empty|string|max_length[255]',
+        'first_login' => 'permit_empty|in_list[0,1]'
     ];
     
     protected $validationMessages = [

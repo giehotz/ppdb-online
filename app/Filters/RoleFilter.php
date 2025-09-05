@@ -31,7 +31,7 @@ class RoleFilter implements FilterInterface
                     case 'siswa':
                         return redirect()->to('/student/dashboard');
                     default:
-                        return redirect()->to('/user/dashboard');
+                        return redirect()->to('/student/dashboard');
                 }
             }
         }
